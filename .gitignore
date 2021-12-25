@@ -1,0 +1,10 @@
+db.sqlite3
+.venv
+venv
+.idea
+.vscode
+/static
+local.py
+*.mo
+settings_local.py
+__pycache__
