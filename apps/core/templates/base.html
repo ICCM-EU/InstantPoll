@@ -1,0 +1,32 @@
+{% load static %}
+{% load i18n %}
+<html>
+    <head>
+        <title>{%translate "Instant Poll"%}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{% static 'Skeleton/css/normalize.css' %}">
+        <link rel="stylesheet" href="{% static 'Skeleton/css/skeleton.css' %}">
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/topnav.css' %}">
+    </head>
+    <body>
+        {% if user.is_staff %}
+        <nav class="topnav">
+            <a href="/">{%translate "Instant Poll"%}</a>
+            <a class="left" href="/events">{%translate "Events"%}</a>
+            <a class="left" href="/polls">{%translate "Polls"%}</a>
+            <a class="left" href="/questions">{%translate "Questions"%}</a>
+            <a class="right" href="/accounts/logout/">{%translate "Logout"%}</a>
+            <a class="right" href="https://github.com/ICCM-EU/InstantPoll" target="_blank">{%translate "Fork me"%}</a>
+        </nav>
+        {% else %}
+        <nav class="topnav">
+            <a href="/">Instant Poll</a>
+            <a class="right" href="/accounts/login/">{%translate "Login"%}</a>
+            <a class="right" href="https://github.com/ICCM-EU/InstantPoll" target="_blank">{%translate "Fork me"%}</a>
+        </nav>
+        {% endif %}
+        {% block content %}
+        {% endblock %}
+    </body>
+</html>

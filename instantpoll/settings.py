@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -104,23 +105,33 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/4.0/topics/i18n/
+# https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+LOCALE_PATHS = [os.path.join(BASE_DIR, "locale")]
 
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = True
+USE_L10N = True
 
+USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
-
 STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.0/howto/static-files/
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
+
+LOGIN_REDIRECT_URL = '/events'
+LOGOUT_REDIRECT_URL = '/events'
+
+from .settings_local import *

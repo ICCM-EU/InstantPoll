@@ -1,4 +1,4 @@
-"""instantpoll URL Configuration
+"""instantquestion URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/4.0/topics/http/urls/
@@ -15,7 +15,35 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import include
+from apps.backend import views as backend_views
+from apps.frontend import views as frontend_views
 
 urlpatterns = [
+    # Django urls
     path('admin/', admin.site.urls),
+    path('accounts/', include('django.contrib.auth.urls')),
+    path('accounts/', include('django_registration.backends.activation.urls')),
+
+    # Backend
+    path('backend/', backend_views.events),
+    path('events', backend_views.events),
+    path('events/add', backend_views.event_add),
+    path('events/select/<int:id>', backend_views.event_select),
+    path('events/edit/<int:id>', backend_views.event_edit),
+    path('polls', backend_views.polls),
+    path('polls/add', backend_views.poll_add),
+    path('polls/select/<int:id>', backend_views.poll_select),
+    path('polls/edit/<int:id>', backend_views.poll_edit),
+    path('questions', backend_views.questions),
+    path('questions/add', backend_views.question_add),
+    path('questions/edit/<int:id>', backend_views.question_edit),
+    path('questions/activate/<int:id>', backend_views.question_activate),
+
+    path('questions/<int:question_id>/addanswer', backend_views.answer_add),
+    path('answers/edit/<int:id>', backend_views.answer_edit),
+
+    # Frontend
+    path('', frontend_views.home),
+    path('<str:event_slug>', frontend_views.enter_event),
 ]

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block content %}
+<div class="form-box">
+{% if form.instance.id is None %}
+<form method="POST" class="post-form" action="/events/add">
+{% else %}
+<form method="POST" class="post-form" action="/events/edit/{{form.instance.id}}">
+{% endif %}
+    {% csrf_token %}
+    <div class="container">
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label"></label>
+        <div class="col-sm-4">
+        {% if form.instance.id is None %}
+        <h3>{% translate "Add Event" %}</h3>
+        {% else %}
+        <h3>{% translate "Edit Event" %}</h3>
+        {% endif %}
+        </div>
+    </div>
+
+    {{ form }}
+
+    <div class="form-group row">
+    <div class="col-sm-4">
+    <button type="submit" class="btn btn-primary">{% translate "Submit" %}</button>
+    </div>
+    </div>
+
+    </div>
+
+</form>
+{% endblock %}

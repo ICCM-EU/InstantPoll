@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+<h3>Events</h3>
+<table>
+
+<tr>
+		<th>name</th>
+		<th>slug</th>
+		<th>Action</th>
+</tr>
+      {% for event in events %}
+<tr>
+		<td>{{ event.name }} </td>
+		<td>{{ event.slug }} </td>
+		<td><a href="/events/edit/{{ event.id }}" class="button button-primary">Edit</a></td>
+		<td><a href="/events/select/{{ event.id }}" class="button button-primary">Polls of this event</a></td>
+        <td><a href="/events/delete/{{ event.id }}" class="button button-danger">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+<center><a href="/events/add" class="button button-primary">Add New Event</a></center>
+</div>
+
+{% endblock %}

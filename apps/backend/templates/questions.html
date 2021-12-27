@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+{% if poll %}
+<h3>Questions for poll {{poll.name}}</h3>
+<table>
+<tr>
+    <th>Question</th>
+    <th>Answer</th>
+    <th>Active</th>
+    <th>Action</th>
+</tr>
+{% for question in questions %}
+<tr>
+    <td colspan="2">{{ question.question }} </td>
+    <td>{% if question.display_question %}Active{%endif%}</td>
+    <td><a href="/questions/edit/{{ question.id }}" class="button button-primary">Edit</a></td>
+    <td><a href="/questions/activate/{{ question.id }}" class="button button-primary">Activate</a></td>
+    <td><a href="/questions/delete/{{ question.id }}" class="button button-danger">Delete</a></td>
+</tr>
+{% for answer in question.answers %}
+<tr>
+    <td></td>
+    <td colspan="2">{{answer.answer}}</td>
+    <td><a href="/answers/edit/{{ answer.id }}" class="button button-primary">Edit</a></td>
+    <td><a href="/answers/delete/{{ answer.id }}" class="button button-danger">Delete</a></td>
+</tr>
+{% endfor %}
+<tr>
+    <td colspan="2"></td>
+    <td><a href="/questions/{{ question.id }}/addanswer" class="button button-primary">Add Answer</a></td>
+</tr>
+{% endfor %}
+</table>
+<center><a href="/questions/add" class="button button-primary">Add New Question</a></center>
+{% else %}
+<h3>Please first select a poll</h3>
+{% endif %}
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+
+{% if event %}
+<h3>Polls for event {{event.name}}</h3>
+<table>
+<tr>
+    <th>name</th>
+    <th>slug</th>
+    <th>Action</th>
+</tr>
+{% for poll in polls %}
+<tr>
+    <td>{{ poll.name }} </td>
+    <td>{{ poll.slug }} </td>
+    <td><a href="/polls/edit/{{ poll.id }}" class="button button-primary">Edit</a></td>
+    <td><a href="/polls/select/{{ poll.id }}" class="button button-primary">Questions of this poll</a></td>
+    <td><a href="/polls/delete/{{ poll.id }}" class="button button-danger">Delete</a></td>
+</tr>
+{% endfor %}
+</table>
+<center><a href="/polls/add" class="button button-primary">Add New Poll</a></center>
+{% else %}
+<h3>Please first select an event</h3>
+{% endif %}
+
+</div>
+
+{% endblock %}
