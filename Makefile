@@ -24,6 +24,9 @@ create_db:
 	${VENV} python manage.py migrate
 	${VENV} python manage.py compilemessages
 
+start_redis:
+	sudo podman run -p 6379:6379 -d docker.io/library/redis:5
+
 runserver:
 	${VENV} (echo "yes" | python manage.py collectstatic)
 	${VENV} python manage.py runserver localhost:8000

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import hashers
-from apps.core.models import Event, Poll, Question
+from apps.core.models import Event, Poll, Question, Answer
 
 
 def home(request):
@@ -56,8 +56,9 @@ def enter_event(request, event_slug):
 def poll(request, poll):
     # get the current question
     question = Question.objects.filter(poll = poll).filter(display_question = True).first()
+    answers = Answer.objects.filter(question=question).all()
 
-    return render(request,"frontend/poll.html", {'poll': poll, 'question': question})
+    return render(request,"frontend/poll.html", {'poll': poll, 'question': question, 'answers': answers})
 
 def polls(request, event_id):
     return render(request,"frontend/polls.html")

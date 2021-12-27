@@ -2,10 +2,53 @@
 
 {% block content %}
 
+<script>
+    // see https://channels.readthedocs.io/en/stable/tutorial/part_2.html
+    const chatSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/poll/{{poll.id}}/'
+    );
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log(data);
+        let question = document.getElementById('question');
+        question.innerHTML = data.question;
+        question.innerHTML += '<ul>';
+
+        data.answers.forEach(function(answer){
+            question.innerHTML += '<li>' + answer + '</li>';
+          });
+
+        question.innerHTML += '</ul>';
+    };
+
+    chatSocket.onclose = function(e) {
+        console.error('Chat socket closed unexpectedly');
+    };
+
+    /*
+
+    document.querySelector('#chat-message-submit').onclick = function(e) {
+        const messageInputDom = document.querySelector('#chat-message-input');
+        const message = messageInputDom.value;
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        messageInputDom.value = '';
+    };
+    */
+</script>
+
 <div class="container">
 <h3>Answer Poll {{poll.name}}</h3>
 
-{{question.question}}
+<div id="question">{{question.question}}
+    <ul>
+{% for answer in answers %}
+        <li>{{answer.answer}}</li>
+{% endfor %}
+    </ul>
+</div>
 
 </div>
 

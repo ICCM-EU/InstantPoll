@@ -1,3 +1,5 @@
 django
 djangorestframework
 django-registration
+channels
+channels_redis

@@ -8,6 +8,8 @@ from django.db import transaction
 from django.db.models import Q
 from apps.backend.forms import EventForm, PollForm, QuestionForm, AnswerForm
 from apps.core.models import Answer, Event, Poll, Question, Answer
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
 
 @login_required
 @staff_member_required
@@ -202,21 +204,34 @@ def question_edit(request, id):
 @staff_member_required
 @transaction.atomic
 def question_activate(request, id):
-    # activate this question
     question = Question.objects.get(id=id)
+
+    # deactivate all other questions of this poll
+    otherquestions = Question.objects.filter(Q(poll=question.poll) & ~Q(id = question.id) & Q(display_question=True))
+    if otherquestions.count() > 0:
+        for otherquestion in otherquestions.all():
+            otherquestion.display_question = False
+            otherquestion.voting_active = False
+            otherquestion.display_result = False
+            otherquestion.save()
+
+    # activate this question
     question.display_question = True
     question.voting_active = True
     question.display_result = True
     question.save()
 
-    # deactivate all other questions of this poll
-    questions = Question.objects.filter(Q(poll=question.poll) & ~Q(id = question.id) & Q(display_question=True))
-    if questions.count() > 0:
-        for question in questions.all():
-            question.display_question = False
-            question.voting_active = False
-            question.display_result = False
-            question.save()
+    answers = Answer.objects.filter(Q(question=question))
+    answer_list = []
+    for answer in answers:
+        answer_list.append(answer.answer)
+
+    group_name = 'poll_%s' % question.poll.id
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        group_name,
+        {'type': 'new_question', 'question': question.question, 'answers': answer_list}
+    )
 
     return redirect("/questions")
 
