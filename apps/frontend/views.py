@@ -1,3 +1,4 @@
+import uuid
 from django.shortcuts import render, redirect
 from django.contrib.auth import hashers
 from apps.core.models import Event, Poll, Question, Answer
@@ -36,6 +37,10 @@ def enter_event(request, event_slug):
         if hashers.check_password(request.POST['password'], event.password):
             request.session['event_id'] = event.id
             request.session['entered_event'] = True
+            if not 'voter_token' in request.session:
+                request.session['voter_token'] = "%s_%s" % (event.slug, uuid.uuid4())
+            elif not request.session['voter_token'].starts_with(event.slug):
+                    request.session['voter_token'] = "%s_%s" % (event.slug, uuid.uuid4())
 
     if 'entered_event' in request.session:
         entered = request.session['entered_event']

@@ -1,5 +1,4 @@
 import json
-import uuid
 from channels.generic.websocket import AsyncWebsocketConsumer
 from apps.backend.logic import Logic
 from asgiref.sync import sync_to_async
@@ -9,8 +8,10 @@ class PollConsumer(AsyncWebsocketConsumer):
 
         self.poll_id = self.scope['url_route']['kwargs']['poll_id']
         self.group_name = 'poll_%s' % self.poll_id
-        # TODO: work with cookies
-        self.voter_token = ('%s_%s' % (self.group_name, uuid.uuid4()))
+
+        # work with session
+        self.voter_token =  self.scope["session"]['voter_token']
+        print('voter token: %s' % (self.voter_token,))
 
         # Join group
         await self.channel_layer.group_add(
