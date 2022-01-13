@@ -86,6 +86,13 @@ class Vote(models.Model):
     class Meta:
         db_table = "core_vote"
 
+    question = models.ForeignKey(
+        Question,
+        null=False, blank=False, default=None,
+        on_delete=models.CASCADE,
+        related_name="%(app_label)s_%(class)s_list",
+    )
+
     answer = models.ForeignKey(
         Answer,
         null=False, blank=False, default=None,
@@ -99,3 +106,5 @@ class Vote(models.Model):
         on_delete=models.CASCADE,
         related_name="%(app_label)s_%(class)s_list",
     )
+
+    free_text = models.CharField(_("free text"), max_length=250, null=True)

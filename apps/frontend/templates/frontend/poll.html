@@ -28,7 +28,7 @@ console.log('new question: ' + data.question);
 
         data.answers.forEach(function(answer){
             newContent +=
-                '<li><button type="submit" class="answer" msg="' + answer + '">' + answer + '</button></li>';
+                '<li><button type="submit" class="answer" msg="' + answer.answer + '" answer_id="' + answer['id'] + '">' + answer.answer + '</button></li>';
           });
 
           newContent += '</ul>';
@@ -38,8 +38,10 @@ console.log('new question: ' + data.question);
         answerButtons.forEach(function(btn) {
             btn.onclick = function(e) {
                 const message = e.srcElement.getAttribute("msg");
+                const answer_id = e.srcElement.getAttribute("answer_id");
                 chatSocket.send(JSON.stringify({
                     'type': 'answer',
+                    'answer_id': answer_id,
                     'message': message
                 }));
             }
