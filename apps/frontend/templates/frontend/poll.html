@@ -13,15 +13,37 @@
     function update_results(answers) {
         let resultsDiv = document.getElementById('results');
         let newContent = '';
+        let totalvotes = 0;
         newContent += '<ul>';
+        labels = [];
+        values = [];
         answers.forEach(function(answer){
             newContent +=
                 '<li>' + answer.votes + ' ' + answer.answer + '</li>';
+            labels.push(answer.answer);
+            values.push(answer.votes);
+            totalvotes += answer.votes;
             });
 
         newContent += '</ul>';
 
-        resultsDiv.innerHTML = newContent;
+        resultsDiv.innerHTML = "Total Votes: " + totalvotes + '<br/><br/>' + newContent;
+
+        var type = 'bar';
+        // var type = 'pie';
+        var data = null;
+        if (type == 'bar') {
+            // see https://plotly.com/javascript/bar-charts/#basic-bar-chart
+            data = [{x: labels, y: values, type: 'bar'}];
+        } else if (type == 'pie') {
+            // see https://plotly.com/javascript/pie-charts/
+            data = [{values: values, labels: labels, type: 'pie'}];
+        }
+        var layout = {
+            height: 400,
+            width: 500
+          };
+        Plotly.newPlot('chart', data); // , layout);
     }
 
     function update_question(data) {
@@ -89,6 +111,7 @@ console.log(data);
 
     <div id="question"></div>
 
+    <div id="chart"></div>
     <div id="results"></div>
 </div>
 
