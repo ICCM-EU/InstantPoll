@@ -17,7 +17,9 @@ class Logic:
         answers = Answer.objects.filter(Q(question=question))
         answer_list = []
         for answer in answers:
-            answer_list.append({'answer': answer.answer, 'id': answer.id})
+            votes = Vote.objects.filter(question=question, answer=answer)
+            # TODO freetext in votes
+            answer_list.append({'answer': answer.answer, 'id': answer.id, 'votes': votes.count()})
 
         group_name = 'poll_%s' % question.poll.id
         channel_layer = get_channel_layer()
@@ -43,6 +45,7 @@ class Logic:
             return
         voter = self.get_voter(poll.event, voter_token)
         self.apply_vote(voter, question, answer, message)
+        self.send_question('update_results', question)
 
     def apply_vote(self, voter, question, answer, message):
         vote = Vote.objects.filter(voter = voter, question=question)

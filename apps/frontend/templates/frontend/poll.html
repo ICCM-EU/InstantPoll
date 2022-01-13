@@ -10,20 +10,23 @@
         'ws://' + window.location.host + '/ws/poll/{{poll.id}}/'
     );
 
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-console.log(data);
-        if (data.type !== 'new_question' && data.type !== 'refresh_question') {
-            return;
-        }
-        // do not overwrite current question by refresh
-        if (currentQuestion === data.question && data.type === 'refresh_question') {
-            return;
-        }
-        currentQuestion = data.question;
-console.log('new question: ' + data.question);
+    function update_results(answers) {
+        let resultsDiv = document.getElementById('results');
+        let newContent = '';
+        newContent += '<ul>';
+        answers.forEach(function(answer){
+            newContent +=
+                '<li>' + answer.votes + ' ' + answer.answer + '</li>';
+            });
+
+        newContent += '</ul>';
+
+        resultsDiv.innerHTML = newContent;
+    }
+
+    function update_question(data) {
         let question = document.getElementById('question');
-        let newContent= data.question;
+        let newContent = data.question;
         newContent += '<ul>';
 
         data.answers.forEach(function(answer){
@@ -46,6 +49,25 @@ console.log('new question: ' + data.question);
                 }));
             }
         });
+    }
+
+    chatSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+console.log(data);
+        if (data.type == 'update_results') {
+            update_results(data.answers);
+        }
+        else if (data.type === 'new_question') {
+            currentQuestion = data.question;
+            update_question(data);
+        }
+        // do not overwrite current question by refresh
+        else if (data.type === 'refresh_question') {
+            if (currentQuestion !== data.question) {
+                currentQuestion = data.question;
+                update_question(data);
+            }
+        }
     };
 
     function init() {
@@ -66,6 +88,8 @@ console.log('new question: ' + data.question);
     <h3>Answer Poll {{poll.name}}</h3>
 
     <div id="question"></div>
+
+    <div id="results"></div>
 </div>
 
 {% endblock %}
