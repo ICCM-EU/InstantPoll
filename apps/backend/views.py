@@ -7,9 +7,8 @@ from django.shortcuts import render
 from django.db import transaction
 from django.db.models import Q
 from apps.backend.forms import EventForm, PollForm, QuestionForm, AnswerForm
+from apps.backend.logic import Logic
 from apps.core.models import Answer, Event, Poll, Question, Answer
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 
 @login_required
 @staff_member_required
@@ -221,18 +220,7 @@ def question_activate(request, id):
     question.display_result = True
     question.save()
 
-    answers = Answer.objects.filter(Q(question=question))
-    answer_list = []
-    for answer in answers:
-        answer_list.append(answer.answer)
-
-    group_name = 'poll_%s' % question.poll.id
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        group_name,
-        {'type': 'new_question', 'question': question.question, 'answers': answer_list}
-    )
-
+    Logic().send_question('new_question', question)
     return redirect("/questions")
 
 

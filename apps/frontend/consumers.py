@@ -1,5 +1,7 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from apps.backend.logic import Logic
+from asgiref.sync import sync_to_async
 
 class PollConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -22,34 +24,41 @@ class PollConsumer(AsyncWebsocketConsumer):
             self.channel_name
         )
 
+    @sync_to_async
+    def do_refresh_question(self, poll_id):
+        question = Logic().get_current_question(poll_id)
+        Logic().send_question('refresh_question', question)
+
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
+        type = text_data_json['type']
         message = text_data_json['message']
+        print('receive ' + type + ' - ' + message + ' for poll id ' + self.poll_id)
 
-        # Send message to group
-        await self.channel_layer.group_send(
-            self.group_name,
-            {
-                'type': 'message',
-                'message': message
-            }
-        )
+        if type == 'init':
+            await self.do_refresh_question(self.poll_id)
 
-    # Receive message from group
-    async def message(self, event):
-        message = event['message']
+        elif type == 'answer':
+            None
 
-        # Send message to WebSocket
-        await self.send(text_data=json.dumps({
-            'message': message
-        }))
-
-    # Receive new question from group
+    # Send new question to group
     async def new_question(self, event):
         question = event['question']
         answers = event['answers']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
+            'type': 'new_question',
+            'question': question, 'answers': answers
+        }))
+
+    # Sending question again to group
+    async def refresh_question(self, event):
+        question = event['question']
+        answers = event['answers']
+
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'type': 'refresh_question',
             'question': question, 'answers': answers
         }))

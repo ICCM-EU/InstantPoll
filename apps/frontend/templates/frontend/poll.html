@@ -3,6 +3,8 @@
 {% block content %}
 
 <script>
+    currentQuestion = null;
+
     // see https://channels.readthedocs.io/en/stable/tutorial/part_2.html
     const chatSocket = new WebSocket(
         'ws://' + window.location.host + '/ws/poll/{{poll.id}}/'
@@ -10,46 +12,58 @@
 
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-        console.log(data);
+console.log(data);
+        if (data.type !== 'new_question' && data.type !== 'refresh_question') {
+            return;
+        }
+        // do not overwrite current question by refresh
+        if (currentQuestion === data.question && data.type === 'refresh_question') {
+            return;
+        }
+        currentQuestion = data.question;
+console.log('new question: ' + data.question);
         let question = document.getElementById('question');
-        question.innerHTML = data.question;
-        question.innerHTML += '<ul>';
+        let newContent= data.question;
+        newContent += '<ul>';
 
         data.answers.forEach(function(answer){
-            question.innerHTML += '<li>' + answer + '</li>';
+            newContent +=
+                '<li><button type="submit" class="answer" msg="' + answer + '">' + answer + '</button></li>';
           });
 
-        question.innerHTML += '</ul>';
+          newContent += '</ul>';
+        question.innerHTML = newContent;
+
+        answerButtons = document.querySelectorAll('.answer');
+        answerButtons.forEach(function(btn) {
+            btn.onclick = function(e) {
+                const message = e.srcElement.getAttribute("msg");
+                chatSocket.send(JSON.stringify({
+                    'type': 'answer',
+                    'message': message
+                }));
+            }
+        });
     };
+
+    function init() {
+        // request the question and options
+        chatSocket.send(JSON.stringify({
+            'type': 'init',
+            'message': 'init'
+        }));
+    }
+    setTimeout(init, 500);
 
     chatSocket.onclose = function(e) {
         console.error('Chat socket closed unexpectedly');
     };
-
-    /*
-
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        const messageInputDom = document.querySelector('#chat-message-input');
-        const message = messageInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'message': message
-        }));
-        messageInputDom.value = '';
-    };
-    */
 </script>
 
 <div class="container">
-<h3>Answer Poll {{poll.name}}</h3>
+    <h3>Answer Poll {{poll.name}}</h3>
 
-<div id="question">{{question.question}}
-    <ul>
-{% for answer in answers %}
-        <li>{{answer.answer}}</li>
-{% endfor %}
-    </ul>
-</div>
-
+    <div id="question"></div>
 </div>
 
 {% endblock %}
