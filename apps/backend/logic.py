@@ -13,6 +13,10 @@ class Logic:
         question = self.get_current_question(poll_id)
         self.send_question('refresh_question', question)
 
+    def refresh_result(self, poll_id):
+        question = self.get_current_question(poll_id)
+        self.send_question('update_results', question)
+
     def send_question(self, msgtype, question):
         answers = Answer.objects.filter(Q(question=question))
         answer_list = []

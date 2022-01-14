@@ -33,6 +33,10 @@ class PollConsumer(AsyncWebsocketConsumer):
         Logic().refresh_question(poll_id)
 
     @sync_to_async
+    def do_refresh_result(self, poll_id):
+        Logic().refresh_result(poll_id)
+
+    @sync_to_async
     def do_process_answer(self, voter_token, poll_id, answer_id, message):
         Logic().process_answer(voter_token, poll_id, answer_id, message)
 
@@ -41,6 +45,9 @@ class PollConsumer(AsyncWebsocketConsumer):
         type = text_data_json['type']
         message = text_data_json['message']
         print('receive ' + type + ' - ' + message + ' for poll id ' + self.poll_id)
+
+        if type == 'init_projector':
+            await self.do_refresh_result(self.poll_id)
 
         if type == 'init':
             await self.do_refresh_question(self.poll_id)

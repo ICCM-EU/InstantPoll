@@ -6,6 +6,9 @@
 
 {% if poll %}
 <h3>Questions for poll {{poll.name}}</h3>
+
+<a href="/polls/view/{{ poll.id }}" target="_blank" class="button button-primary">View Results</a></td>
+
 <table>
 <tr>
     <th>Question</th>
@@ -19,6 +22,7 @@
     <td>{% if question.display_question %}Active{%endif%}</td>
     <td><a href="/questions/edit/{{ question.id }}" class="button button-primary">Edit</a></td>
     <td><a href="/questions/activate/{{ question.id }}" class="button button-primary">Activate</a></td>
+    <td><a href="/questions/view/{{ question.id }}" target="_blank" class="button button-primary">View Results</a></td>
     <td><a href="/questions/delete/{{ question.id }}" class="button button-danger">Delete</a></td>
 </tr>
 {% for answer in question.answers %}

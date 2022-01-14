@@ -2,7 +2,7 @@
 {% load i18n %}
 <html>
     <head>
-        <title>{%translate "Instant Poll"%}</title>
+        <title>{%translate "Instant Poll"%}{% if title %} - {{title}}{%endif%}</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="{% static 'Skeleton/css/normalize.css' %}">
         <link rel="stylesheet" href="{% static 'Skeleton/css/skeleton.css' %}">
@@ -11,6 +11,7 @@
         <script src='//cdn.plot.ly/plotly-2.8.3.min.js'></script>
     </head>
     <body>
+        {% if not fullscreen %}
         {% if user.is_staff %}
         <nav class="topnav">
             <a href="/">{%translate "Instant Poll"%}</a>
@@ -26,6 +27,7 @@
             <a class="right" href="/accounts/login/">{%translate "Login"%}</a>
             <a class="right" href="https://github.com/ICCM-EU/InstantPoll" target="_blank">{%translate "Fork me"%}</a>
         </nav>
+        {% endif %}
         {% endif %}
         {% block content %}
         {% endblock %}

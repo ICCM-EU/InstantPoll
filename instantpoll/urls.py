@@ -35,10 +35,12 @@ urlpatterns = [
     path('polls/add', backend_views.poll_add),
     path('polls/select/<int:id>', backend_views.poll_select),
     path('polls/edit/<int:id>', backend_views.poll_edit),
+    path('polls/view/<int:id>', backend_views.view_result),
     path('questions', backend_views.questions),
     path('questions/add', backend_views.question_add),
     path('questions/edit/<int:id>', backend_views.question_edit),
     path('questions/activate/<int:id>', backend_views.question_activate),
+    path('questions/view/<int:id>', backend_views.view_question_result),
 
     path('questions/<int:question_id>/addanswer', backend_views.answer_add),
     path('answers/edit/<int:id>', backend_views.answer_edit),

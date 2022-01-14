@@ -8,7 +8,7 @@ from django.db import transaction
 from django.db.models import Q
 from apps.backend.forms import EventForm, PollForm, QuestionForm, AnswerForm
 from apps.backend.logic import Logic
-from apps.core.models import Answer, Event, Poll, Question, Answer
+from apps.core.models import Answer, Event, Poll, Question, Answer, Vote
 
 @login_required
 @staff_member_required
@@ -157,7 +157,7 @@ def questions(request):
     questions = Question.objects.filter(poll = poll)
     for question in questions:
         question.answers = Answer.objects.filter(question=question)
-    return render(request,"questions.html", {'questions':questions, 'poll': poll})
+    return render(request,"questions.html", {'questions':questions, 'poll': poll, 'title': poll.name})
 
 
 @login_required
@@ -262,3 +262,40 @@ def answer_edit(request, id):
         answer = Answer.objects.get(id=id)
         form = AnswerForm(None, instance = answer)
         return render(request,'answer.html', {'form': form})
+
+@login_required
+@staff_member_required
+def view_result(request, id):
+
+    # TODO check if this is our poll
+    poll = Poll.objects.get(id=id)
+
+    # display result of current poll
+    return render(request,'projector.html', 
+        {'poll': poll,
+        'title': ' Projector - ' + poll.name,
+        'fullscreen': True})
+
+@login_required
+@staff_member_required
+def view_question_result(request, id):
+
+    # TODO check if this is our question
+    question = Question.objects.get(id=id)
+    answers = Answer.objects.filter(Q(question=question))
+    answer_list = []
+    total_votes = 0
+    for answer in answers:
+        votes = Vote.objects.filter(question=question, answer=answer)
+        # TODO freetext in votes
+        answer_list.append({'answer': answer.answer, 'id': answer.id, 'votes': votes.count()})
+        total_votes += votes.count()
+
+
+    # display result of selected question
+    return render(request,'result.html',
+        {'question': question,
+        'answers': answer_list,
+        'total_votes': total_votes,
+        'title': question.question,
+        'fullscreen': True})

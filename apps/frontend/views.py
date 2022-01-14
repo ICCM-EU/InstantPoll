@@ -39,7 +39,7 @@ def enter_event(request, event_slug):
             request.session['entered_event'] = True
             if not 'voter_token' in request.session:
                 request.session['voter_token'] = "%s_%s" % (event.slug, uuid.uuid4())
-            elif not request.session['voter_token'].starts_with(event.slug):
+            elif not request.session['voter_token'].startswith(event.slug):
                     request.session['voter_token'] = "%s_%s" % (event.slug, uuid.uuid4())
 
     if 'entered_event' in request.session:

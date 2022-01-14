@@ -10,7 +10,10 @@
         'ws://' + window.location.host + '/ws/poll/{{poll.id}}/'
     );
 
-    function update_results(answers) {
+    function update_results(question, answers) {
+        let questionDiv = document.getElementById('question');
+        questionDiv.innerHTML = question;
+
         let resultsDiv = document.getElementById('results');
         let newContent = '';
         let totalvotes = 0;
@@ -47,30 +50,9 @@
     }
 
     function update_question(data) {
-        let question = document.getElementById('question');
+        let questionDiv = document.getElementById('question');
         let newContent = data.question;
-        newContent += '<ul>';
-
-        data.answers.forEach(function(answer){
-            newContent +=
-                '<li><button type="submit" class="answer" msg="' + answer.answer + '" answer_id="' + answer['id'] + '">' + answer.answer + '</button></li>';
-          });
-
-          newContent += '</ul>';
-        question.innerHTML = newContent;
-
-        answerButtons = document.querySelectorAll('.answer');
-        answerButtons.forEach(function(btn) {
-            btn.onclick = function(e) {
-                const message = e.srcElement.getAttribute("msg");
-                const answer_id = e.srcElement.getAttribute("answer_id");
-                chatSocket.send(JSON.stringify({
-                    'type': 'answer',
-                    'answer_id': answer_id,
-                    'message': message
-                }));
-            }
-        });
+        questionDiv.innerHTML = newContent;
 
         // clear the results
         let resultsDiv = document.getElementById('results');
@@ -83,7 +65,7 @@
         const data = JSON.parse(e.data);
 console.log(data);
         if (data.type == 'update_results') {
-            update_results(data.answers);
+            update_results(data.question, data.answers);
         }
         else if (data.type === 'new_question') {
             currentQuestion = data.question;
@@ -101,7 +83,7 @@ console.log(data);
     function init() {
         // request the question and options
         chatSocket.send(JSON.stringify({
-            'type': 'init',
+            'type': 'init_projector',
             'message': 'init'
         }));
     }
@@ -114,9 +96,9 @@ console.log(data);
 </script>
 
 <div class="container">
-    <h3>Answer Poll {{poll.name}}</h3>
+    <h3>{{poll.name}}</h3>
 
-    <div id="question"></div>
+    <h4 id="question"></h4>
 
     <div id="chart"></div>
     <div id="results"></div>

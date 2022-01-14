@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<script>
+    function init() {
+
+        labels = [
+        {% for answer in answers %}
+            '{{answer.answer}}',
+        {% endfor %}
+        ];
+
+        values = [
+        {% for answer in answers %}
+            {{answer.votes}},
+        {% endfor %}
+        ];
+
+        var type = 'bar';
+        // var type = 'pie';
+        var data = null;
+        if (type == 'bar') {
+            // see https://plotly.com/javascript/bar-charts/#basic-bar-chart
+            data = [{x: labels, y: values, type: 'bar'}];
+        } else if (type == 'pie') {
+            // see https://plotly.com/javascript/pie-charts/
+            data = [{values: values, labels: labels, type: 'pie'}];
+        }
+        console.log(data);
+        Plotly.newPlot('chart', data);
+    }
+    setTimeout(init, 500);
+</script>
+
+<div class="container">
+    <h3>{{poll.name}}</h3>
+
+    <h4 id="question">{{question.question}}</h4>
+
+    <div id="chart"></div>
+    <div id="results">Total Votes: {{total_votes}}</div>
+</div>
+
+{% endblock %}
