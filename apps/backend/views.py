@@ -138,6 +138,15 @@ def poll_edit(request, id):
 
 @login_required
 @staff_member_required
+def poll_delete(request, id):
+    # TODO is this our poll?
+    poll = Poll.objects.get(id=id)
+    poll.delete()
+    return redirect("/events")
+
+
+@login_required
+@staff_member_required
 def poll_select(request, id):
     request.session['poll_id'] = id
     return redirect("/questions")
@@ -197,6 +206,15 @@ def question_edit(request, id):
         question = Question.objects.get(id=id)
         form = QuestionForm(None, instance = question)
         return render(request,'question.html', {'form': form})
+
+
+@login_required
+@staff_member_required
+def question_delete(request, id):
+    # TODO is this our question?
+    question = Question.objects.get(id=id)
+    question.delete()
+    return redirect("/questions")
 
 
 @login_required
@@ -262,6 +280,16 @@ def answer_edit(request, id):
         answer = Answer.objects.get(id=id)
         form = AnswerForm(None, instance = answer)
         return render(request,'answer.html', {'form': form})
+
+
+@login_required
+@staff_member_required
+def answer_delete(request, id):
+    # TODO is this our answer?
+    answer = Answer.objects.get(id=id)
+    answer.delete()
+    return redirect("/questions")
+
 
 @login_required
 @staff_member_required
