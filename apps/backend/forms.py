@@ -8,7 +8,7 @@ class EventForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput(render_value=True))
     class Meta:
         model = Event
-        fields = "__all__"
+        fields = ("name", "slug", "password")
 
 
 class PollForm(forms.ModelForm):

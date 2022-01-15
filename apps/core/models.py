@@ -1,4 +1,5 @@
 from django.contrib.auth import SESSION_KEY
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -8,6 +9,11 @@ class Event(models.Model):
     class Meta:
         db_table = "core_event"
 
+    user = models.ForeignKey(
+        User,
+        null=False, blank=False, default=None,
+        on_delete=models.CASCADE,
+    )
     name = models.CharField(_("name"), max_length=250)
     slug = models.CharField(_("slug"), max_length=50)
     password = models.CharField(_("password"), max_length=250)

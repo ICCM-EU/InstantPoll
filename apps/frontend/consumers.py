@@ -4,13 +4,18 @@ from apps.backend.logic import Logic
 from asgiref.sync import sync_to_async
 
 class PollConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
 
         self.poll_id = self.scope['url_route']['kwargs']['poll_id']
         self.group_name = 'poll_%s' % self.poll_id
 
         # work with session
-        self.voter_token =  self.scope["session"]['voter_token']
+        if not 'voter_token' in self.scope["session"]:
+            self.voter_token = self.create_voter_token(self.poll_id)
+            self.scope["session"]['voter_token'] = self.voter_token
+        else:
+            self.voter_token =  self.scope["session"]['voter_token']
         print('voter token: %s' % (self.voter_token,))
 
         # Join group
@@ -27,6 +32,10 @@ class PollConsumer(AsyncWebsocketConsumer):
             self.group_name,
             self.channel_name
         )
+
+    @sync_to_async
+    def create_voter_token(self, poll_id):
+        return Logic().create_voter_token(poll_id)
 
     @sync_to_async
     def do_refresh_question(self, poll_id):

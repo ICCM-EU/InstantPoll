@@ -1,9 +1,35 @@
+import uuid
 from django.db.models import Q
 from apps.core.models import Event, Poll, Question, Answer, Voter, Vote
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 
 class Logic:
+
+    # this will raise an exception if the event id does not belong to the user in the request
+    def get_our_event(self, request, id):
+        event = Event.objects.get(id=id)
+        if event.user != request.user:
+            raise Exception('invalid access to event of other user')
+        return event
+
+    def get_selected_event(self, request):
+        if 'event_id' in request.session:
+            event = Logic().get_our_event(request, request.session['event_id'])
+            return event
+        return None
+
+    def get_selected_poll(self, request):
+        if 'poll_id' in request.session and request.session['poll_id'] is not None:
+            poll = Poll.objects.get(id=request.session['poll_id'])
+            event = Logic().get_our_event(request, poll.event.id)
+            return poll
+        return None
+
+    def create_voter_token(self, poll_id):
+        poll = Poll.objects.get(id=poll_id)
+        return ("%s_%s" % (poll.event.slug, uuid.uuid4()))
+
     def get_current_question(self, poll_id):
         poll = Poll.objects.get(id=poll_id)
         question = Question.objects.filter(poll=poll, display_question=True).first()
@@ -11,13 +37,21 @@ class Logic:
 
     def refresh_question(self, poll_id):
         question = self.get_current_question(poll_id)
-        self.send_question('refresh_question', question)
+        self.send_question(poll_id, 'refresh_question', question)
 
     def refresh_result(self, poll_id):
         question = self.get_current_question(poll_id)
-        self.send_question('update_results', question)
+        self.send_question(poll_id, 'update_results', question)
 
-    def send_question(self, msgtype, question):
+    def send_question(self, poll_id, msgtype, question):
+        if question is None:
+            group_name = 'poll_%s' % poll_id
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                group_name,
+                {'type': msgtype, 'question': 'Please wait', 'answers': {}})
+            return
+
         answers = Answer.objects.filter(Q(question=question))
         answer_list = []
         for answer in answers:
@@ -49,7 +83,7 @@ class Logic:
             return
         voter = self.get_voter(poll.event, voter_token)
         self.apply_vote(voter, question, answer, message)
-        self.send_question('update_results', question)
+        self.send_question(poll_id, 'update_results', question)
 
     def apply_vote(self, voter, question, answer, message):
         vote = Vote.objects.filter(voter = voter, question=question)
