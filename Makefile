@@ -27,7 +27,9 @@ create_db:
 start_redis:
 	sudo podman run -p 6379:6379 -d docker.io/library/redis:5
 
-runserver:
+collectstatic:
 	${VENV} (echo "yes" | python manage.py collectstatic)
+
+runserver: collectstatic
 	${VENV} python manage.py runserver localhost:8000
 
