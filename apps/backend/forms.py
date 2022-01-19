@@ -22,7 +22,7 @@ class QuestionForm(forms.ModelForm):
 
     class Meta:
         model = Question
-        fields = ("question",)
+        fields = ("question","allow_multiple_answers")
 
 class AnswerForm(forms.ModelForm):
 

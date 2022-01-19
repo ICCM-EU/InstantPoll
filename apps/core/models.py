@@ -54,6 +54,8 @@ class Question(models.Model):
     display_result = models.BooleanField(_("display result"), default=False)
     # display the result as wordmap, as bar chart, as pie chart, etc...
     result_presentation_type = models.CharField(_("present as"), default='bar_chart', max_length=50)
+    # allow multiple answers
+    allow_multiple_answers = models.BooleanField(_("multiple answers allowed"), default=False)
 
 
 class Answer(models.Model):

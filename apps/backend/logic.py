@@ -89,6 +89,14 @@ class Logic:
         vote = Vote.objects.filter(voter = voter, question=question)
         if vote.count() == 0:
             vote = Vote(question = question, voter = voter)
+        elif question.allow_multiple_answers:
+            # do we have such an answer already? then revoke it
+            vote = Vote.objects.filter(question = question, voter = voter, answer = answer)
+            if vote.count() > 0:
+                vote.delete()
+                return
+            else:
+                vote = Vote(question = question, voter = voter)
         else:
             vote = vote.first()
         vote.answer = answer
