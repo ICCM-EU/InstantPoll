@@ -1,6 +1,7 @@
 import uuid
 from django.shortcuts import render, redirect
 from django.contrib.auth import hashers
+from django.http import JsonResponse
 from apps.core.models import Event, Poll, Question, Answer
 from apps.backend.logic import Logic
 
@@ -70,3 +71,11 @@ def poll(request, poll):
 
 def polls(request, event_id):
     return render(request,"frontend/polls.html")
+
+def selected_answers(request, poll_id):
+    voter_token =  request.session['voter_token']
+    poll = Poll.objects.get(id=poll_id)
+    # get the current question
+    question = Question.objects.filter(poll = poll).filter(display_question = True).first()
+    answers = Logic().get_selected_answers(Logic().get_voter(question.poll.event, voter_token), question)
+    return JsonResponse({'selected_answers':answers})

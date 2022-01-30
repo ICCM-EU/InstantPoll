@@ -100,7 +100,7 @@ class Logic:
             # do we have such an answer already? then revoke it
             vote = Vote.objects.filter(question = question, voter = voter, answer = answer)
             if vote.count() > 0:
-                vote.delete()
+                vote.first().delete()
                 return
             else:
                 vote = Vote(question = question, voter = voter)
@@ -108,7 +108,7 @@ class Logic:
             vote = vote.first()
             # do we have such an answer already? then revoke it
             if vote.answer == answer:
-                vote.delete();
+                vote.delete()
                 return
 
         vote.answer = answer

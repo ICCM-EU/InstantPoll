@@ -50,4 +50,5 @@ urlpatterns = [
     # Frontend
     path('', frontend_views.home),
     path('<str:event_slug>', frontend_views.enter_event),
+    path('selected_answers/<int:poll_id>', frontend_views.selected_answers),
 ]

@@ -53,43 +53,78 @@
         Plotly.newPlot('chart', data); // , layout);
     }
 
+    var httpRequest;
+    function update_selected_answers_show() {
+
+        SelectedAnswers = [];
+
+        if (httpRequest.readyState === XMLHttpRequest.DONE) {
+            SelectedAnswers = JSON.parse(httpRequest.responseText);
+            SelectedAnswers = SelectedAnswers.selected_answers;
+
+            // TODO update class selected in answers
+            answerButtons = document.querySelectorAll('.answer');
+            answerButtons.forEach(function(btn) {
+                const answer_id = parseInt(btn.getAttribute("answer_id"));
+                if (SelectedAnswers.includes(answer_id)) {
+                    // mark as selected
+                    btn.className += " selected";
+                } else {
+                    // mark as not selected
+                    btn.className = btn.className.replaceAll("selected", "");
+                }
+
+            });
+        }
+    }
+
+    function update_selected_answers() {
+        var loc = window.location;
+
+        httpRequest = new XMLHttpRequest();
+        httpRequest.onreadystatechange = update_selected_answers_show;
+        httpRequest.open('GET', window.location.protocol + '//' + window.location.host + '/selected_answers/{{poll.id}}');
+        httpRequest.send();
+    }
+
     function update_question(data) {
         let question = document.getElementById('question');
         let newContent = data.question;
         newContent += '<ul>';
 
         data.answers.forEach(function(answer){
-            selected = '';
-            if (SelectedAnswers.includes(answer['id'])) {
-                selected = "selected";
-            }
             newContent +=
-                '<li><button type="submit" class="answer ' + selected + '" msg="' + answer.answer + '" answer_id="' + answer['id'] + '">' + answer.answer + '</button></li>';
+                '<li><button type="submit" class="answer" msg="' + answer.answer + '" answer_id="' + answer['id'] + '">' + answer.answer + '</button></li>';
           });
 
-          newContent += '</ul>';
+        newContent += '</ul>';
         question.innerHTML = newContent;
+        update_selected_answers();
 
         answerButtons = document.querySelectorAll('.answer');
         answerButtons.forEach(function(btn) {
             btn.onclick = function(e) {
                 const message = e.srcElement.getAttribute("msg");
-                const answer_id = e.srcElement.getAttribute("answer_id");
+                const answer_id = parseInt(e.srcElement.getAttribute("answer_id"));
                 chatSocket.send(JSON.stringify({
                     'type': 'answer',
                     'answer_id': answer_id,
                     'message': message
                 }));
-                if (SelectedAnswers.includes(parseInt(answer_id))) {
+
+                // immediate feedback, might be wrong, if only one answer can be selected
+                if (SelectedAnswers.includes(answer_id)) {
                     // remove the answer
                     index = SelectedAnswers.indexOf(answer_id);
                     SelectedAnswers.splice(index, 1);
-                    e.srcElement.className = e.srcElement.className.replace("selected", "");
+                    e.srcElement.className = e.srcElement.className.replaceAll("selected", "");
                 } else {
                     // add the answer
-                    SelectedAnswers.push(parseInt(answer_id));
+                    SelectedAnswers.push(answer_id);
                     e.srcElement.className += " selected";
                 }
+                // wait half a second, then update the button selections, this is for single answer questions.
+                setTimeout(update_selected_answers, 500);
             }
         });
 
