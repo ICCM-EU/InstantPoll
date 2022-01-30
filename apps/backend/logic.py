@@ -85,6 +85,13 @@ class Logic:
         self.apply_vote(voter, question, answer, message)
         self.send_question(poll_id, 'update_results', question)
 
+    def get_selected_answers(self, voter, question):
+        result = []
+        votes  = Vote.objects.filter(question = question, voter = voter).all()
+        for vote in votes:
+            result.append(vote.answer_id)
+        return result
+
     def apply_vote(self, voter, question, answer, message):
         vote = Vote.objects.filter(voter = voter, question=question)
         if vote.count() == 0:

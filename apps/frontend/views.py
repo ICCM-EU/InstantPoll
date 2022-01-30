@@ -2,6 +2,7 @@ import uuid
 from django.shortcuts import render, redirect
 from django.contrib.auth import hashers
 from apps.core.models import Event, Poll, Question, Answer
+from apps.backend.logic import Logic
 
 
 def home(request):
@@ -62,8 +63,10 @@ def poll(request, poll):
     # get the current question
     question = Question.objects.filter(poll = poll).filter(display_question = True).first()
     answers = Answer.objects.filter(question=question).all()
+    voter_token =  request.session['voter_token']
+    selected_answers = Logic().get_selected_answers(Logic().get_voter(poll.event, voter_token), question)
 
-    return render(request,"frontend/poll.html", {'poll': poll, 'question': question, 'answers': answers})
+    return render(request,"frontend/poll.html", {'poll': poll, 'question': question, 'answers': answers, 'selected_answers': ','.join(map(str,selected_answers))})
 
 def polls(request, event_id):
     return render(request,"frontend/polls.html")
