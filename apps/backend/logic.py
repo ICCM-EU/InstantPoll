@@ -106,6 +106,11 @@ class Logic:
                 vote = Vote(question = question, voter = voter)
         else:
             vote = vote.first()
+            # do we have such an answer already? then revoke it
+            if vote.answer == answer:
+                vote.delete();
+                return
+
         vote.answer = answer
         if answer.free_text and message is not None:
             vote.message = message
