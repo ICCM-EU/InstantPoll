@@ -21,18 +21,28 @@
         let resultsDiv = document.getElementById('results');
         let newContent = '';
         let totalvotes = 0;
+        let labels = [];
+        let values = [];
+        let showResults = true;
+
         newContent += '<ul>';
-        labels = [];
-        values = [];
         answers.forEach(function(answer){
+            if (answer.votes == -1) {
+                // there are no voting results available for this question
+                showResults = false;
+            }
             newContent +=
                 '<li>' + answer.votes + ' ' + answer.answer + '</li>';
             labels.push(answer.answer);
             values.push(answer.votes);
             totalvotes += answer.votes;
             });
-
         newContent += '</ul>';
+
+        if (!showResults) {
+            // resultsDiv.innerHTML = "Total Votes: " + "TODO" + '<br/><br/>' + "Results will not be displayed for this poll.";
+            return;
+        }
 
         resultsDiv.innerHTML = "Total Votes: " + totalvotes + '<br/><br/>' + newContent;
 

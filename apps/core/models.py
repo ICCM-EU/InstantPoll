@@ -35,6 +35,26 @@ class Poll(models.Model):
     slug = models.CharField(_("slug"), max_length=50)
     active = models.BooleanField(_("active"), default=False)
 
+    class PollMode(models.TextChoices):
+        SURVEY = 'SU', _('Survey: show all questions at once')
+        POLL = 'PO', _('Poll: only show one active question')
+
+    pollmode = models.CharField(
+        max_length=2,
+        choices=PollMode.choices,
+        default=PollMode.POLL,
+    )
+
+    class ResultsMode(models.TextChoices):
+        IMMEDIATE = 'IM', _('Immediately during voting')
+        AFTER = 'AF', _('After voting is done')
+        PRIVATE = 'PR', _('Private: do not show votes to voters')
+
+    resultsmode = models.CharField(
+        max_length=2,
+        choices=ResultsMode.choices,
+        default=ResultsMode.IMMEDIATE,
+    )
 
 class Question(models.Model):
 

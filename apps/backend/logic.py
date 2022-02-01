@@ -52,13 +52,19 @@ class Logic:
                 {'type': msgtype, 'question': 'Please wait', 'answers': {}})
             return
 
+        poll = Poll.objects.get(id=poll_id)
         answers = Answer.objects.filter(Q(question=question)).order_by('id')
         answer_list = []
         for answer in answers:
-            votes = Vote.objects.filter(question=question, answer=answer)
+            if poll.resultsmode == 'IM': # immediate
+                votes = Vote.objects.filter(question=question, answer=answer)
+                votecount = votes.count()
+            elif poll.resultsmode == 'PR': # private
+                votecount = -1
             # TODO freetext in votes
-            answer_list.append({'answer': answer.answer, 'id': answer.id, 'votes': votes.count()})
+            answer_list.append({'answer': answer.answer, 'id': answer.id, 'votes': votecount})
 
+        # TODO: show number of voters, independant of vote
         group_name = 'poll_%s' % question.poll.id
         channel_layer = get_channel_layer()
         async_to_sync(channel_layer.group_send)(

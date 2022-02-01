@@ -15,7 +15,7 @@ class PollForm(forms.ModelForm):
 
     class Meta:
         model = Poll
-        fields = ("name", "slug", "active",)
+        fields = ("name", "slug", "active", "pollmode", "resultsmode")
 
 
 class QuestionForm(forms.ModelForm):
