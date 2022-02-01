@@ -30,46 +30,52 @@ class Logic:
         poll = Poll.objects.get(id=poll_id)
         return ("%s_%s" % (poll.event.slug, uuid.uuid4()))
 
-    def get_current_question(self, poll_id):
-        poll = Poll.objects.get(id=poll_id)
-        question = Question.objects.filter(poll=poll, display_question=True).first()
+    def get_current_questions(self, poll):
+        question = Question.objects.filter(poll=poll, display_question=True).all()
         return question
 
     def refresh_question(self, poll_id):
-        question = self.get_current_question(poll_id)
-        self.send_question(poll_id, 'refresh_question', question)
+        poll = Poll.objects.get(id=poll_id)
+        questions = self.get_current_questions(poll_id)
+        self.send_questions(poll_id, 'refresh_questions', questions)
 
     def refresh_result(self, poll_id):
-        question = self.get_current_question(poll_id)
-        self.send_question(poll_id, 'update_results', question)
+        poll = Poll.objects.get(id=poll_id)
+        questions = self.get_current_questions(poll)
+        self.send_questions(poll_id, 'update_results', questions)
 
-    def send_question(self, poll_id, msgtype, question):
-        if question is None:
+    def send_questions(self, poll_id, msgtype, questions):
+        if questions is None:
             group_name = 'poll_%s' % poll_id
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 group_name,
-                {'type': msgtype, 'question': 'Please wait', 'answers': {}})
+                {'type': msgtype, 'message': 'Please wait', 'question': {}, 'answers': {}})
             return
 
         poll = Poll.objects.get(id=poll_id)
-        answers = Answer.objects.filter(Q(question=question)).order_by('id')
+
         answer_list = []
-        for answer in answers:
-            if poll.resultsmode == 'IM': # immediate
-                votes = Vote.objects.filter(question=question, answer=answer)
-                votecount = votes.count()
-            elif poll.resultsmode == 'PR': # private
-                votecount = -1
-            # TODO freetext in votes
-            answer_list.append({'answer': answer.answer, 'id': answer.id, 'votes': votecount})
+        question_list = []
+        for question in questions:
+            answers = Answer.objects.filter(Q(question=question)).order_by('id')
+            for answer in answers:
+                if poll.resultsmode == 'IM': # immediate
+                    votes = Vote.objects.filter(question=question, answer=answer)
+                    votecount = votes.count()
+                elif poll.resultsmode == 'PR': # private
+                    votecount = -1
+                # TODO freetext in votes
+                answer_list.append({'question_id': question.id, 'answer': answer.answer, 'id': answer.id, 'votes': votecount})
+            question_list.append({'id': question.id, 'description': question.question})
 
         # TODO: show number of voters, independant of vote
         group_name = 'poll_%s' % question.poll.id
         channel_layer = get_channel_layer()
+        # TODO: support multiple questions at once
         async_to_sync(channel_layer.group_send)(
             group_name,
-            {'type': msgtype, 'question': question.question, 'answers': answer_list}
+            {'type': msgtype, 'questions': question_list, 'answers': answer_list}
         )
 
     def get_voter(self, event, voter_token):
@@ -83,13 +89,13 @@ class Logic:
 
     def process_answer(self, voter_token, poll_id, answer_id, message):
         poll = Poll.objects.get(id=poll_id)
-        question = self.get_current_question(poll_id)
+        questions = self.get_current_questions(poll)
         answer = Answer.objects.filter(id=answer_id).first()
-        if question != answer.question:
+        if answer.question not in questions:
             return
         voter = self.get_voter(poll.event, voter_token)
-        self.apply_vote(voter, question, answer, message)
-        self.send_question(poll_id, 'update_results', question)
+        self.apply_vote(voter, answer.question, answer, message)
+        self.send_questions(poll_id, 'update_results', questions)
 
     def get_selected_answers(self, voter, question):
         result = []

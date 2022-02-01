@@ -65,34 +65,34 @@ class PollConsumer(AsyncWebsocketConsumer):
             await self.do_process_answer(self.voter_token, self.poll_id, text_data_json['answer_id'], message)
 
     # Send new question to group
-    async def new_question(self, event):
-        question = event['question']
+    async def new_questions(self, event):
+        questions = event['questions']
         answers = event['answers']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
-            'type': 'new_question',
-            'question': question, 'answers': answers
+            'type': 'new_questions',
+            'questions': questions, 'answers': answers
         }))
 
     # Sending question again to group
-    async def refresh_question(self, event):
-        question = event['question']
+    async def refresh_questions(self, event):
+        questions = event['questions']
         answers = event['answers']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
-            'type': 'refresh_question',
-            'question': question, 'answers': answers
+            'type': 'refresh_questions',
+            'questions': questions, 'answers': answers
         }))
 
     # Sending results to group
     async def update_results(self, event):
-        question = event['question']
+        questions = event['questions']
         answers = event['answers']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
             'type': 'update_results',
-            'question': question, 'answers': answers
+            'questions': questions, 'answers': answers
         }))

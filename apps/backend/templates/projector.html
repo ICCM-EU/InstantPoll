@@ -10,33 +10,41 @@
         'ws://' + window.location.host + '/ws/poll/{{poll.id}}/'
     );
 
-    function update_results(question, answers) {
-        let questionDiv = document.getElementById('question');
-        questionDiv.innerHTML = question;
-
-        let resultsDiv = document.getElementById('results');
+    function update_results(questions, answers) {
         let newContent = '';
-        let totalvotes = 0;
-        let labels = [];
-        let values = [];
-        let showResults = true;
+        questions.forEach(function(question){
 
-        newContent += '<ul>';
-        answers.forEach(function(answer){
-            if (answer.votes == -1) {
-                // there are no voting results available for this question
-                console.log("do not show results");
-                showResults = false;
-            }
+            let resultsDiv = document.getElementById('results');
 
-            newContent +=
-                '<li>' + answer.votes + ' ' + answer.answer + '</li>';
-            labels.push(answer.answer);
-            values.push(answer.votes);
-            totalvotes += answer.votes;
+            let totalvotes = 0;
+            let labels = [];
+            let values = [];
+            let showResults = true;
+
+            newContent += question.description;
+            newContent += '<ul>';
+            answers.forEach(function(answer){
+                if (answer.question_id == question.id) {
+                    if (answer.votes == -1) {
+                        // there are no voting results available for this question
+                        showResults = false;
+                    }
+
+                    if (showResults) {
+                        newContent +=
+                            '<li>' + answer.votes + ' ' + answer.answer + '</li>';
+                    }
+                    labels.push(answer.answer);
+                    values.push(answer.votes);
+                    totalvotes += answer.votes;
+                }
             });
 
-        newContent += '</ul>';
+            newContent += '</ul>';
+        });
+
+        let questionDiv = document.getElementById('question');
+        questionDiv.innerHTML = newContent;
 
         if (!showResults) {
             resultsDiv.innerHTML = "Total Votes: " + "TODO" + '<br/><br/>' + "Results will not be displayed for this poll.";
@@ -78,17 +86,17 @@
         const data = JSON.parse(e.data);
 console.log(data);
         if (data.type == 'update_results') {
-            update_results(data.question, data.answers);
+            update_results(data.questions, data.answers);
         }
-        else if (data.type === 'new_question') {
-            currentQuestion = data.question;
-            update_question(data);
+        else if (data.type === 'new_questions') {
+            currentQuestion = data.questions[0].description;
+            update_questions(data);
         }
         // do not overwrite current question by refresh
         else if (data.type === 'refresh_question') {
-            if (currentQuestion !== data.question) {
-                currentQuestion = data.question;
-                update_question(data);
+            if (currentQuestion !== data.questions[0].description) {
+                currentQuestion = data.questions[0].description;
+                update_questions(data);
             }
         }
     };

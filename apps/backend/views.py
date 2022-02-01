@@ -156,6 +156,9 @@ def question_add(request):
         if form.is_valid():
             try:
                 form.instance.poll = Logic().get_selected_poll(request)
+                # in survey mode: by default enable all questions
+                if form.instance.poll.pollmode == 'SU':
+                    form.instance.display_question = True
                 form.save()
                 return redirect('/questions')
             except:
@@ -195,17 +198,20 @@ def question_delete(request, id):
 @login_required
 @transaction.atomic
 def question_activate(request, id):
+
     question = Question.objects.get(id=id)
     event = Logic().get_our_event(request, question.poll.event.id)
 
-    # deactivate all other questions of this poll
-    otherquestions = Question.objects.filter(Q(poll=question.poll) & ~Q(id = question.id) & Q(display_question=True))
-    if otherquestions.count() > 0:
-        for otherquestion in otherquestions.all():
-            otherquestion.display_question = False
-            otherquestion.voting_active = False
-            otherquestion.display_result = False
-            otherquestion.save()
+    # poll.pollmode = PO: only one question active at the same time
+    if question.poll.pollmode == 'PO':
+        # deactivate all other questions of this poll
+        otherquestions = Question.objects.filter(Q(poll=question.poll) & ~Q(id = question.id) & Q(display_question=True))
+        if otherquestions.count() > 0:
+            for otherquestion in otherquestions.all():
+                otherquestion.display_question = False
+                otherquestion.voting_active = False
+                otherquestion.display_result = False
+                otherquestion.save()
 
     # activate this question
     question.display_question = True
@@ -213,7 +219,9 @@ def question_activate(request, id):
     question.display_result = True
     question.save()
 
-    Logic().send_question(question.poll.id, 'new_question', question)
+    questions = Question.objects.filter(poll=question.poll, display_question=True)
+
+    Logic().send_questions(question.poll.id, 'new_questions', questions)
     return redirect("/questions")
 
 

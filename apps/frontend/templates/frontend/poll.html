@@ -97,19 +97,25 @@
         httpRequest.send();
     }
 
-    function update_question(data) {
-        let question = document.getElementById('question');
-        let newContent = data.question;
-        newContent += '<ul>';
+    function update_questions(data) {
+        let newContent = '';
+        data.questions.forEach(function(question){
+            newContent += question.description;
+            newContent += '<ul>';
 
-        data.answers.forEach(function(answer){
-            newContent +=
-                '<li><button type="submit" class="answer" msg="' + answer.answer + '" answer_id="' + answer['id'] + '">' + answer.answer + '</button></li>';
-          });
+            data.answers.forEach(function(answer){
+                if (answer.question_id == question.id) {
+                    newContent +=
+                        '<li><button type="submit" class="answer" msg="' + answer.answer + '" question_id="' + answer['question_id'] + ' " answer_id="' + answer['id'] + '">' + answer.answer + '</button></li>';
+                }
+              });
 
-        newContent += '</ul>';
-        question.innerHTML = newContent;
-        update_selected_answers();
+            newContent += '</ul>';
+            update_selected_answers();
+        });
+
+        let questionDiv = document.getElementById('question');
+        questionDiv.innerHTML = newContent;
 
         answerButtons = document.querySelectorAll('.answer');
         answerButtons.forEach(function(btn) {
@@ -151,15 +157,15 @@ console.log(data);
         if (data.type == 'update_results') {
             update_results(data.answers);
         }
-        else if (data.type === 'new_question') {
-            currentQuestion = data.question;
-            update_question(data);
+        else if (data.type === 'new_questions') {
+            currentQuestion = data.questions[0].description;
+            update_questions(data);
         }
         // do not overwrite current question by refresh
-        else if (data.type === 'refresh_question') {
-            if (currentQuestion !== data.question) {
-                currentQuestion = data.question;
-                update_question(data);
+        else if (data.type === 'refresh_questions') {
+            if (currentQuestion !== data.questions[0].description) {
+                currentQuestion = data.questions[0].description;
+                update_questions(data);
             }
         }
     };
