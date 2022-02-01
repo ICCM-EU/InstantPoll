@@ -3,8 +3,13 @@
 {% block content %}
 
 <div class="container">
-<h3>Select Poll</h3>
+<h3>Select Poll of Event &quot;{{event.name}}&quot;</h3>
 
+<ul>
+{% for poll in polls %}
+    <li><a href="/{{event.slug}}/{{ poll.slug }}">{{poll.name}}</li>
+{% endfor %}
+</ul>
 
 </div>
 
