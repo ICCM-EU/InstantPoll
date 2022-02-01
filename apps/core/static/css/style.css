@@ -15,6 +15,9 @@ div.tab-pane h4 {
   font-size: 14px;
   font-weight: 600;
 }
+button {
+  background-color: lightblue;
+}
 button.selected {
   background-color: lightgreen;
 }

@@ -52,7 +52,7 @@ class Logic:
                 {'type': msgtype, 'question': 'Please wait', 'answers': {}})
             return
 
-        answers = Answer.objects.filter(Q(question=question))
+        answers = Answer.objects.filter(Q(question=question)).order_by('id')
         answer_list = []
         for answer in answers:
             votes = Vote.objects.filter(question=question, answer=answer)
