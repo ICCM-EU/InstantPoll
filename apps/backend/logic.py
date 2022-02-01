@@ -31,7 +31,7 @@ class Logic:
         return ("%s_%s" % (poll.event.slug, uuid.uuid4()))
 
     def get_current_questions(self, poll):
-        question = Question.objects.filter(poll=poll, display_question=True).all()
+        question = Question.objects.filter(poll=poll, display_question=True).order_by('id').all()
         return question
 
     def refresh_question(self, poll_id):

@@ -74,7 +74,7 @@ def show_poll_by_slug(request, event_slug, poll_slug):
             raise Exception('invalid event')
 
     if entered:
-        polls = Poll.objects.filter(event = event, slug = poll_slug)
+        polls = Poll.objects.filter(event = event, slug = poll_slug, active=True)
         if polls.count() == 1:
             return show_poll(request, polls.first())
         else:

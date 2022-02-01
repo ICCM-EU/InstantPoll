@@ -141,9 +141,9 @@ def poll_select(request, id):
 @login_required
 def questions(request):
     poll = Logic().get_selected_poll(request)
-    questions = Question.objects.filter(poll = poll)
+    questions = Question.objects.filter(poll = poll).order_by('id')
     for question in questions:
-        question.answers = Answer.objects.filter(question=question)
+        question.answers = Answer.objects.filter(question=question).order_by('id')
     return render(request,"questions.html", {'questions':questions, 'poll': poll, 'title': poll.name})
 
 
