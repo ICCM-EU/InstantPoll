@@ -28,4 +28,4 @@ class AnswerForm(forms.ModelForm):
 
     class Meta:
         model = Answer
-        fields = ("answer",)
+        fields = ("answer","free_text")

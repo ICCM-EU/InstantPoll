@@ -65,11 +65,10 @@ class Logic:
                     votecount = votes.count()
                 elif poll.resultsmode == 'PR': # private
                     votecount = -1
-                # TODO freetext in votes
-                answer_list.append({'question_id': question.id, 'answer': answer.answer, 'id': answer.id, 'votes': votecount})
+                answer_list.append({'question_id': question.id, 'answer': answer.answer, 'id': answer.id, 'free_text': answer.free_text, 'votes': votecount})
             question_list.append({'id': question.id, 'description': question.question})
 
-        # TODO: show number of voters, independant of vote
+        # TODO: show number of voters, independent of vote
         group_name = 'poll_%s' % question.poll.id
         channel_layer = get_channel_layer()
         # TODO: support multiple questions at once
@@ -97,17 +96,20 @@ class Logic:
         self.apply_vote(voter, answer.question, answer, message)
         self.send_questions(poll_id, 'update_results', questions)
 
-    def get_selected_answers(self, voter, question):
+    def get_selected_answers(self, voter, questions):
         result = []
-        votes  = Vote.objects.filter(question = question, voter = voter).all()
-        for vote in votes:
-            result.append(vote.answer_id)
+        for question in questions:
+            votes  = Vote.objects.filter(question = question, voter = voter).all()
+            for vote in votes:
+                result.append({'id': vote.answer_id, 'free_text': vote.free_text})
         return result
 
     def apply_vote(self, voter, question, answer, message):
         vote = Vote.objects.filter(voter = voter, question=question)
         if vote.count() == 0:
             vote = Vote(question = question, voter = voter)
+        elif answer.free_text:
+            vote = vote.first()
         elif question.allow_multiple_answers:
             # do we have such an answer already? then revoke it
             vote = Vote.objects.filter(question = question, voter = voter, answer = answer)
@@ -125,5 +127,5 @@ class Logic:
 
         vote.answer = answer
         if answer.free_text and message is not None:
-            vote.message = message
+            vote.free_text = message
         vote.save()

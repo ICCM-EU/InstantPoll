@@ -84,12 +84,17 @@ def show_poll_by_slug(request, event_slug, poll_slug):
 
 def show_poll(request, poll):
     # get the current question
-    question = Question.objects.filter(poll = poll).filter(display_question = True).first()
+    questions = Question.objects.filter(poll = poll).filter(display_question = True)
+    question = questions.first()
     answers = Answer.objects.filter(question=question).all()
     voter_token =  request.session['voter_token']
-    selected_answers = Logic().get_selected_answers(Logic().get_voter(poll.event, voter_token), question)
+    selected_answers = Logic().get_selected_answers(Logic().get_voter(poll.event, voter_token), questions)
 
-    return render(request,"frontend/poll.html", {'poll': poll, 'question': question, 'answers': answers, 'selected_answers': ','.join(map(str,selected_answers))})
+    selected_answers_ids = ''
+    for selected_answer in selected_answers:
+        selected_answers_ids += str(selected_answer['id']) + ','
+
+    return render(request,"frontend/poll.html", {'poll': poll, 'question': question, 'answers': answers, 'selected_answers_ids': selected_answers_ids})
 
 def show_polls(request, event, polls):
     return render(request,"frontend/polls.html", {'event': event, 'polls': polls})
@@ -97,7 +102,7 @@ def show_polls(request, event, polls):
 def selected_answers(request, poll_id):
     voter_token =  request.session['voter_token']
     poll = Poll.objects.get(id=poll_id)
-    # get the current question
-    question = Question.objects.filter(poll = poll).filter(display_question = True).first()
-    answers = Logic().get_selected_answers(Logic().get_voter(question.poll.event, voter_token), question)
+    # get the current question(s)
+    questions = Question.objects.filter(poll = poll).filter(display_question = True).all()
+    answers = Logic().get_selected_answers(Logic().get_voter(poll.event, voter_token), questions)
     return JsonResponse({'selected_answers':answers})
