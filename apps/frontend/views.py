@@ -52,7 +52,7 @@ def enter_event(request, event_slug):
 
     if entered:
         # if there is only one active poll, then select that
-        polls = Poll.objects.filter(event = event)
+        polls = Poll.objects.filter(event = event, active=True)
         if polls.count() == 1:
             return show_poll(request, polls.first())
         else:
