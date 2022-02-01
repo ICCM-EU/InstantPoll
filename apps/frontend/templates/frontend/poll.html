@@ -62,7 +62,7 @@
             SelectedAnswers = JSON.parse(httpRequest.responseText);
             SelectedAnswers = SelectedAnswers.selected_answers;
 
-            // TODO update class selected in answers
+            // update class selected in answers
             answerButtons = document.querySelectorAll('.answer');
             answerButtons.forEach(function(btn) {
                 const answer_id = parseInt(btn.getAttribute("answer_id"));
