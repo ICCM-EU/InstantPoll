@@ -94,7 +94,8 @@ def poll_add(request):
                 # enforce the selected event
                 form.instance.event = event
                 form.save()
-                return redirect('/polls')
+                request.session['poll_id'] = form.instance.id
+                return redirect('/questions')
             except:
                 raise
 
@@ -113,7 +114,7 @@ def poll_edit(request, id):
         form = PollForm(request.POST, instance = poll)
         if form.is_valid():
             form.save()
-            return redirect("/polls")
+            return redirect("/questions")
         return render(request, 'poll.html', {'form': form})
 
     else:
@@ -127,7 +128,7 @@ def poll_delete(request, id):
     poll = Poll.objects.get(id=id)
     event = Logic().get_our_event(request, poll.event.id)
     poll.delete()
-    return redirect("/events")
+    return redirect("/polls")
 
 
 @login_required
