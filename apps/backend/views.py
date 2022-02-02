@@ -6,6 +6,8 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render
 from django.db import transaction
 from django.db.models import Q
+from django.http import HttpResponse
+import xlwt
 from apps.backend.forms import EventForm, PollForm, QuestionForm, AnswerForm
 from apps.backend.logic import Logic
 from apps.core.models import Answer, Event, Poll, Question, Answer, Vote
@@ -285,6 +287,7 @@ def view_result(request, id):
         'title': ' Projector - ' + poll.name,
         'fullscreen': True})
 
+
 @login_required
 def view_question_result(request, id):
 
@@ -299,7 +302,6 @@ def view_question_result(request, id):
         answer_list.append({'answer': answer.answer, 'id': answer.id, 'votes': votes.count()})
         total_votes += votes.count()
 
-
     # display result of selected question
     return render(request,'result.html',
         {'question': question,
@@ -307,3 +309,62 @@ def view_question_result(request, id):
         'total_votes': total_votes,
         'title': question.question,
         'fullscreen': True})
+
+
+@login_required
+def export_result(request, id):
+
+    poll = Poll.objects.get(id=id)
+    event = Logic().get_our_event(request, poll.event.id)
+
+    questions = Question.objects.filter(poll = poll)
+
+    # export result of current poll
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="poll_'+poll.slug+'.xlsx"'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('results for poll ' + poll.slug)
+
+    # header
+    row_num = 0
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    ws.write(row_num, 0, poll.name, font_style)
+    row_num += 2
+
+    columns = ['Question', 'Answer', 'Count']
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+    row_num += 1
+
+    # body
+    font_style = xlwt.XFStyle()
+
+    for question in questions:
+        row_num += 1
+        ws.write(row_num, 0, question.question, font_style)
+        row_num += 1
+        answers = Answer.objects.filter(Q(question=question))
+        total_votes = 0
+        for answer in answers:
+            votes = Vote.objects.filter(question=question, answer=answer)
+            if not answer.free_text:
+                total_votes += votes.count()
+                ws.write(row_num, 1, answer.answer, font_style)
+                ws.write(row_num, 2, votes.count(), font_style)
+                row_num += 1
+            else:
+                for vote in votes.all():
+                    if vote.free_text:
+                        total_votes += 1
+                        ws.write(row_num, 1, vote.free_text, font_style)
+                        row_num += 1
+                row_num += 1
+        ws.write(row_num, 0, 'Total votes', font_style)
+        ws.write(row_num, 1, total_votes, font_style)
+        row_num += 2
+
+    wb.save(response)
+    return response

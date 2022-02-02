@@ -3,4 +3,5 @@ djangorestframework
 django-registration
 channels
 channels_redis
-psycopg2
+#psycopg2
+xlwt

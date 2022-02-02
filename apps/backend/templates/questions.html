@@ -5,10 +5,11 @@
 <div class="container">
 
 {% if poll %}
-<h3>Questions for poll {{poll.name}}</h3>
+<h3>Poll &quot;{{poll.name}}&quot;</h3>
 
 <a href="/polls/edit/{{ poll.id }}" target="_blank" class="button button-primary">Edit Poll</a>
-<a href="/polls/view/{{ poll.id }}" target="_blank" class="button button-primary">View Results</a>
+<a href="/polls/view/{{ poll.id }}" target="_blank" class="button button-primary">View Results Live</a>
+<a href="/polls/export/{{ poll.id }}" target="_blank" class="button button-primary">Export Results</a>
 
 <table>
 <tr>
