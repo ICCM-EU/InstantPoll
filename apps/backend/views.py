@@ -137,7 +137,7 @@ def poll_clone(request, id):
     newpoll.active = False
     newpoll.save()
 
-    questions = Question.objects.filter(poll = poll)
+    questions = Question.objects.filter(poll = poll).order_by('id')
 
     for question in questions:
         newqust = Question.objects.get(id=question.id)
@@ -145,7 +145,7 @@ def poll_clone(request, id):
         newqust.poll = newpoll
         newqust.save()
 
-        answers = Answer.objects.filter(question=question)
+        answers = Answer.objects.filter(question=question).order_by('id')
         for answer in answers:
             newansw = Answer.objects.get(id=answer.id)
             newansw.id = None
@@ -348,7 +348,7 @@ def export_result(request, id):
     poll = Poll.objects.get(id=id)
     event = Logic().get_our_event(request, poll.event.id)
 
-    questions = Question.objects.filter(poll = poll)
+    questions = Question.objects.filter(poll = poll).order_by('id')
 
     # export result of current poll
     response = HttpResponse(content_type='application/ms-excel')
@@ -377,7 +377,7 @@ def export_result(request, id):
         row_num += 1
         ws.write(row_num, 0, question.question, font_style)
         row_num += 1
-        answers = Answer.objects.filter(Q(question=question))
+        answers = Answer.objects.filter(Q(question=question)).order_by('id')
         total_votes = 0
         for answer in answers:
             votes = Vote.objects.filter(question=question, answer=answer)
