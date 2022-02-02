@@ -76,7 +76,7 @@ def event_select(request, id):
 @login_required
 def polls(request):
     event = Logic().get_selected_event(request)
-    polls = Poll.objects.filter(event = event)
+    polls = Poll.objects.filter(event = event).order_by('-id')
     return render(request,"polls.html", {'polls':polls, 'event': event})
 
 
