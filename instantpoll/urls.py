@@ -35,6 +35,7 @@ urlpatterns = [
     path('polls/add', backend_views.poll_add),
     path('polls/select/<int:id>', backend_views.poll_select),
     path('polls/edit/<int:id>', backend_views.poll_edit),
+    path('polls/clone/<int:id>', backend_views.poll_clone),
     path('polls/delete/<int:id>', backend_views.poll_delete),
     path('polls/view/<int:id>', backend_views.view_result),
     path('polls/export/<int:id>', backend_views.export_result),

@@ -126,6 +126,37 @@ def poll_edit(request, id):
 
 
 @login_required
+def poll_clone(request, id):
+    poll = Poll.objects.get(id=id)
+    event = Logic().get_our_event(request, poll.event.id)
+
+    newpoll = Poll.objects.get(id=id)
+    newpoll.id = None
+    newpoll.name = poll.name + ' (clone)'
+    newpoll.slug = poll.slug + '_clone'
+    newpoll.active = False
+    newpoll.save()
+
+    questions = Question.objects.filter(poll = poll)
+
+    for question in questions:
+        newqust = Question.objects.get(id=question.id)
+        newqust.id = None
+        newqust.poll = newpoll
+        newqust.save()
+
+        answers = Answer.objects.filter(question=question)
+        for answer in answers:
+            newansw = Answer.objects.get(id=answer.id)
+            newansw.id = None
+            newansw.question = newqust
+            newansw.save()
+
+    request.session['poll_id'] = newpoll.id
+    return redirect("/polls/edit/" + str(newpoll.id))
+
+
+@login_required
 def poll_delete(request, id):
     poll = Poll.objects.get(id=id)
     event = Logic().get_our_event(request, poll.event.id)

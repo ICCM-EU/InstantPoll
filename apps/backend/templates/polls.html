@@ -18,6 +18,7 @@
     <td>{{ poll.slug }} </td>
     <td><a href="/polls/edit/{{ poll.id }}" class="button button-primary">Edit</a></td>
     <td><a href="/polls/select/{{ poll.id }}" class="button button-primary">Questions of this poll</a></td>
+    <td><a href="/polls/clone/{{ poll.id }}" class="button button-primary">Clone this poll</a></td>
     <td><a href="/polls/delete/{{ poll.id }}" class="button button-danger">Delete</a></td>
 </tr>
 {% endfor %}
