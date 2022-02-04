@@ -90,7 +90,7 @@ class Answer(models.Model):
         related_name="%(app_label)s_%(class)s_list",
     )
 
-    answer = models.CharField(_("Answer"), max_length=250)
+    answer = models.CharField(_("Answer"), max_length=2500)
     free_text = models.BooleanField(_("free text"), default=False)
 
 
