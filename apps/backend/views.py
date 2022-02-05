@@ -341,20 +341,13 @@ def view_question_result(request, id):
         'title': question.question,
         'fullscreen': True})
 
-
-@login_required
-def export_result(request, id):
-
-    poll = Poll.objects.get(id=id)
-    event = Logic().get_our_event(request, poll.event.id)
-
+def export_poll(wb, poll):
     questions = Question.objects.filter(poll = poll).order_by('id')
 
-    # export result of current poll
+    # export result of this poll
     response = HttpResponse(content_type='application/ms-excel')
     response['Content-Disposition'] = 'attachment; filename="poll_'+poll.slug+'.xlsx"'
 
-    wb = xlwt.Workbook(encoding='utf-8')
     ws = wb.add_sheet('results for poll ' + poll.slug)
 
     # header
@@ -397,5 +390,35 @@ def export_result(request, id):
         ws.write(row_num, 1, total_votes, font_style)
         row_num += 2
 
+
+# export result of current poll
+@login_required
+def poll_export_result(request, id):
+
+    poll = Poll.objects.get(id=id)
+    event = Logic().get_our_event(request, poll.event.id)
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    export_poll(wb, poll)
+
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="poll_'+poll.slug+'.xlsx"'
+    wb.save(response)
+    return response
+
+# export results of all poll in this event
+@login_required
+def event_export_result(request, id):
+
+    event = Logic().get_our_event(request, id)
+
+    polls = Poll.objects.filter(event = event).order_by('-id')
+    wb = xlwt.Workbook(encoding='utf-8')
+
+    for poll in polls:
+        export_poll(wb, poll)
+
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = 'attachment; filename="poll_'+poll.slug+'.xlsx"'
     wb.save(response)
     return response

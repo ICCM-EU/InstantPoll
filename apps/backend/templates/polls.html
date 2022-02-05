@@ -6,6 +6,9 @@
 
 {% if event %}
 <h3>Polls for event {{event.name}}</h3>
+
+<a href="/events/export/{{ event.id }}" target="_blank" class="button button-primary">Export All Results</a>
+
 <table>
 <tr>
     <th>name</th>
