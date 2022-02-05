@@ -419,6 +419,6 @@ def event_export_result(request, id):
         export_poll(wb, poll)
 
     response = HttpResponse(content_type='application/ms-excel')
-    response['Content-Disposition'] = 'attachment; filename="poll_'+poll.slug+'.xlsx"'
+    response['Content-Disposition'] = 'attachment; filename="poll_'+event.slug+'.xlsx"'
     wb.save(response)
     return response
