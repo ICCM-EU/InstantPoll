@@ -3,5 +3,7 @@ djangorestframework
 django-registration
 channels
 channels_redis
-#psycopg2
 xlwt
+#for production:
+#psycopg2
+#uvicorn[standard]
