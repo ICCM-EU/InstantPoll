@@ -5,9 +5,15 @@
 <script>
     var currentQuestion = null;
 
+    var loc = window.location;
+    var wsStart = 'ws://';
+    if (loc.protocol == 'https:') {
+        wsStart = 'wss://'
+    }
+
     // see https://channels.readthedocs.io/en/stable/tutorial/part_2.html
     const chatSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/poll/{{poll.id}}/'
+        wsStart + window.location.host + '/ws/poll/{{poll.id}}/'
     );
 
     function update_results(questions, answers) {
