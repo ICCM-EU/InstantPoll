@@ -69,7 +69,7 @@ class Logic:
             question_list.append({'id': question.id, 'description': question.question})
 
         # TODO: show number of voters, independent of vote
-        group_name = 'poll_%s' % question.poll.id
+        group_name = 'poll_%s' % poll_id
         channel_layer = get_channel_layer()
         # TODO: support multiple questions at once
         async_to_sync(channel_layer.group_send)(
