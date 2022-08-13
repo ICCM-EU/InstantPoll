@@ -86,7 +86,7 @@ def show_poll(request, poll):
     # get the current question
     questions = Question.objects.filter(poll = poll).filter(display_question = True)
     question = questions.first()
-    answers = Answer.objects.filter(question=question).all()
+    answers = Answer.objects.filter(question=question).order_by('order').all()
     voter_token =  request.session['voter_token']
     selected_answers = Logic().get_selected_answers(Logic().get_voter(poll.event, voter_token), questions)
 

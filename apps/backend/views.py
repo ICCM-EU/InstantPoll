@@ -146,7 +146,7 @@ def poll_clone(request, id):
         newqust.poll = newpoll
         newqust.save()
 
-        answers = Answer.objects.filter(question=question).order_by('id')
+        answers = Answer.objects.filter(question=question).order_by('order')
         for answer in answers:
             newansw = Answer.objects.get(id=answer.id)
             newansw.id = None
@@ -178,7 +178,7 @@ def questions(request):
     poll = Logic().get_selected_poll(request)
     questions = Question.objects.filter(poll = poll).order_by('id')
     for question in questions:
-        question.answers = Answer.objects.filter(question=question).order_by('id')
+        question.answers = Answer.objects.filter(question=question).order_by('order')
     return render(request,"questions.html", {'questions':questions, 'poll': poll, 'title': poll.name})
 
 
@@ -297,6 +297,20 @@ def answer_edit(request, id):
     else:
         form = AnswerForm(None, instance = answer)
         return render(request,'answer.html', {'form': form})
+
+
+@login_required
+def answer_moveup(request, id):
+    answer = Answer.objects.get(id=id)
+    answer.move(-1)
+    return redirect("/questions")
+
+
+@login_required
+def answer_movedown(request, id):
+    answer = Answer.objects.get(id=id)
+    answer.move(+1)
+    return redirect("/questions")
 
 
 @login_required

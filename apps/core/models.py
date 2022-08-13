@@ -1,8 +1,8 @@
 from django.contrib.auth import SESSION_KEY
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-
 
 class Event(models.Model):
 
@@ -82,6 +82,9 @@ class Answer(models.Model):
 
     class Meta:
         db_table = "core_answer"
+        ordering = ('order',)
+
+    order = models.IntegerField(_("Order"), default = 0)
 
     question = models.ForeignKey(
         Question,
@@ -92,6 +95,48 @@ class Answer(models.Model):
 
     answer = models.CharField(_("Answer"), max_length=2500)
     free_text = models.BooleanField(_("free text"), default=False)
+
+    def save(self, *args, **kwargs):
+        # move this answer to the end
+        if self.pk is None:
+            last_answer = Answer.objects.filter(Q(question = self.question), ~Q(id = self.id)).order_by('order').last()
+            if last_answer:
+                self.order = last_answer.order + 1
+
+        super(Answer, self).save(*args, **kwargs)
+
+
+    def move(self, up_or_down):
+        other_answers = Answer.objects.filter(Q(question = self.question), ~Q(id = self.id))
+        need_to_move = False
+
+        # are there answers at the same order or ahead in that direction?
+        for answer in other_answers:
+            if up_or_down == 1: # move down the list
+                if answer.order >= self.order:
+                    need_to_move = True
+            elif up_or_down == -1: # move up the list
+                if answer.order <= self.order:
+                    need_to_move = True
+        if not need_to_move:
+            return False
+        # need to jump deleted items
+        while True:
+            for answer in other_answers:
+                if answer.order == self.order:
+                    break
+            self.order += up_or_down
+        self.order += up_or_down
+        self.save()
+        for answer in other_answers:
+            if up_or_down == 1: # move down the list
+                if answer.order >= self.order:
+                    answer.order -= 1
+            elif up_or_down == -1: # move up the list
+                if answer.order <= self.order:
+                    answer.order += 1
+            answer.save()
+        return True
 
 
 class Voter(models.Model):

@@ -48,6 +48,8 @@ urlpatterns = [
     path('questions/view/<int:id>', backend_views.view_question_result),
     path('questions/<int:question_id>/addanswer', backend_views.answer_add),
     path('answers/edit/<int:id>', backend_views.answer_edit),
+    path('answers/moveup/<int:id>', backend_views.answer_moveup),
+    path('answers/movedown/<int:id>', backend_views.answer_movedown),
     path('answers/delete/<int:id>', backend_views.answer_delete),
 
     # Frontend

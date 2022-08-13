@@ -33,6 +33,8 @@
     <td colspan="2">{{answer.answer}}</td>
     <td><a href="/answers/edit/{{ answer.id }}" class="button button-primary">Edit</a></td>
     <td><a href="/answers/delete/{{ answer.id }}" class="button button-danger">Delete</a></td>
+    <td><a href="/answers/movedown/{{ answer.id }}" class="button button-primary">Move Down</a></td>
+    <td><a href="/answers/moveup/{{ answer.id }}" class="button button-primary">Move Up</a></td>
 </tr>
 {% endfor %}
 <tr>
