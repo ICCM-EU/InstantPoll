@@ -116,6 +116,7 @@ def poll_edit(request, id):
         form = PollForm(request.POST, instance = poll)
         if form.is_valid():
             form.save()
+            request.session['poll_id'] = id
             return redirect("/questions")
         return render(request, 'poll.html', {'form': form})
 

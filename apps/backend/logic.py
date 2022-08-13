@@ -60,6 +60,8 @@ class Logic:
         for question in questions:
             answers = Answer.objects.filter(Q(question=question)).order_by('id')
             for answer in answers:
+                # after vote
+                votecount = -1
                 if poll.resultsmode == 'IM': # immediate
                     votes = Vote.objects.filter(question=question, answer=answer)
                     votecount = votes.count()
