@@ -16,7 +16,7 @@ class PollConsumer(AsyncWebsocketConsumer):
             self.scope["session"]['voter_token'] = self.voter_token
         else:
             self.voter_token =  self.scope["session"]['voter_token']
-        print('voter token: %s' % (self.voter_token,))
+        # print('voter token: %s' % (self.voter_token,))
 
         # Join group
         await self.channel_layer.group_add(
@@ -53,7 +53,7 @@ class PollConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         type = text_data_json['type']
         message = text_data_json['message']
-        print('receive ' + type + ' - ' + message + ' for poll id ' + self.poll_id)
+        # print('receive ' + type + ' - ' + message + ' for poll id ' + self.poll_id)
 
         if type == 'init_projector':
             await self.do_refresh_result(self.poll_id)
