@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extrahead %}
+        <script type="text/javascript" src="{% static 'js/plotly.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery.slim.min.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 

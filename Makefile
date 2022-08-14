@@ -15,6 +15,8 @@ create_superuser:
 pip_packages:
 	${VENV} pip install --upgrade pip
 	${VENV} pip install -r requirements.txt
+	wget https://cdn.plot.ly/plotly-2.14.0.min.js -O apps/core/static/js/plotly.min.js
+	wget https://code.jquery.com/jquery-3.6.0.slim.min.js -O apps/core/static/js/jquery.slim.min.js
 
 create_venv:
 	python3 -m venv .venv

@@ -21,3 +21,20 @@ button {
 button.selected {
   background-color: lightgreen;
 }
+div.msg {
+    background: #88ee44 !important;
+    border-radius: 5px;
+    border: 2px solid black;
+    width:100%;
+    margin:5px auto;
+    cursor:pointer;
+    position:relative;
+}
+#global_message_space {
+    position:absolute;
+    top:10vh;
+    width:50%;
+    left: 50%;
+    transform: translateX(-50%);z-index:5000;
+    text-align: center !important;
+}

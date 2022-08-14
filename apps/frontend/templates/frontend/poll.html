@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extrahead %}
+        <script type="text/javascript" src="{% static 'js/plotly.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'js/jquery.slim.min.js' %}"></script>
+{% endblock %}
 
 {% block content %}
 
@@ -157,11 +163,13 @@
                 // immediate feedback, might be wrong, if only one answer can be selected
                 if (SelectedAnswers.includes(answer_id)) {
                     // remove the answer
+                    display_message("Your vote has been removed!");
                     index = SelectedAnswers.indexOf(answer_id);
                     SelectedAnswers.splice(index, 1);
                     e.srcElement.className = e.srcElement.className.replaceAll("selected", "");
                 } else {
                     // add the answer
+                    display_message("Thank you for your vote!");
                     SelectedAnswers.push(answer_id);
                     e.srcElement.className += " selected";
                 }
@@ -179,7 +187,7 @@
 
     chatSocket.onmessage = function(e) {
         const data = JSON.parse(e.data);
-console.log(data);
+
         if (data.type == 'update_results') {
             update_results(data.answers);
         }
@@ -209,10 +217,28 @@ console.log(data);
         console.error('Socket closed unexpectedly');
         alert('connection lost, please refresh the browser')
     };
+
+    // display messages in the upper middle of the screen
+    function display_message(content) {
+        var display_space = $('#global_message_space');
+
+        var message = $('<div id="message" class="msg" onclick="$(this).closest(\'.msg\').remove()"></div>');
+        message.html(content);
+
+        var timeout = 2000; // 2 seconds
+        var m_id = Math.floor(Math.random() * 100000);
+        message.attr('message-id', m_id);
+        $('#global_message_space').append(message);
+
+        latestTimeout = setTimeout(function () {
+            $('[message-id='+m_id+']').remove(); }, timeout);
+    }
 </script>
 
 <div class="container">
     <h3>{{poll.name}}</h3>
+
+    <div id="global_message_space"></div>
 
     <div id="question"></div>
 

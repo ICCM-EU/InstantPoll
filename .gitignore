@@ -8,3 +8,4 @@ local.py
 *.mo
 settings_local.py
 __pycache__
+apps/core/static/js/*.min.js
