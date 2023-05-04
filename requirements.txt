@@ -1,10 +1,10 @@
-django
+django==3.2.19
 djangorestframework
 django-registration
 channels
 channels_redis
 xlwt
 #for production:
-#psycopg2
-#uvicorn[standard]
-#gunicorn
+psycopg2
+uvicorn[standard]
+gunicorn
